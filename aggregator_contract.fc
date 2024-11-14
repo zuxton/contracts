@@ -1,0 +1,25 @@
+// Aggregator Smart Contract for Zuxton
+
+contract Aggregator {
+    // Store active validators and node status
+    map<int, cell> active_validators;
+    map<int, cell> node_status;
+
+    // Register validator and link with PoC
+    public function register_validator(slice poc_key, int node_id) external {
+        require(active_validators.not_exists(node_id), 103); // Ensure node_id is unique
+        active_validators[node_id] = poc_key; // Link PoC key with validator node
+
+        send_message("Validator registered for node: ", node_id);
+    }
+
+    // Function to aggregate and report status
+    public function report_status() external returns (cell) {
+        cell aggregated_report;
+        foreach((node_id, poc_key) in active_validators) {
+            cell node_report = node_status.get(node_id).get_or_null(); // Get node status
+            append(aggregated_report, node_report); // Append report to aggregated report
+        }
+        return aggregated_report;
+    }
+}

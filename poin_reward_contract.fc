@@ -1,0 +1,48 @@
+// Poin Reward Smart Contract for Zuxton
+
+// Define a constant for the points multiplier
+const POINTS_MULTIPLIER = 0.1; // Multiplier for calculating points based on contribution
+
+contract PoinReward {
+    // Mapping of validator PoC keys to their points balance
+    map<cell, int> points_balance;
+
+    // Register contribution and reward points based on amount
+    public function reward_points(cell poc_key, int contribution_amount) external {
+        // Calculate points based on contribution
+        int points = contribution_amount * POINTS_MULTIPLIER;
+
+        // Add points to the validator’s balance
+        if (points_balance.exists(poc_key)) {
+            points_balance[poc_key] += points; // Add points if key exists
+        } else {
+            points_balance[poc_key] = points; // Initialize points if key is new
+        }
+
+        send_message("Points awarded for contribution. Current balance: ", points_balance[poc_key]);
+    }
+
+    // Function to award points based on node validation activity
+    public function reward_validation_points(cell poc_key, int validation_strength) external {
+        // Calculate points from validation strength with a base multiplier
+        int points = validation_strength / 10; // Each validation grants points based on strength
+
+        // Add points to the validator’s balance
+        if (points_balance.exists(poc_key)) {
+            points_balance[poc_key] += points; // Add points if key exists
+        } else {
+            points_balance[poc_key] = points; // Initialize points if key is new
+        }
+
+        send_message("Points awarded for validation. Current balance: ", points_balance[poc_key]);
+    }
+
+    // Function to check points balance of a validator
+    public function check_points_balance(cell poc_key) external returns (int) {
+        if (points_balance.exists(poc_key)) {
+            return points_balance[poc_key]; // Return points balance if exists
+        } else {
+            return 0; // Return 0 if no points are registered
+        }
+    }
+}

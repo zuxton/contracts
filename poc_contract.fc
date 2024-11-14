@@ -1,0 +1,33 @@
+// PoC Smart Contract for Zuxton
+
+// Declare constants for the contract
+const MIN_CONTRIBUTION = 1; // 
+
+// Initialize PoC contract
+contract PoC {
+    // Storage of each validator’s contribution
+    map<cell, int> contributions;
+    
+    // Function to contribute TON and receive a unique PoC secret key
+    public function contribute(int amount) external {
+        require(amount >= MIN_CONTRIBUTION, 100); // Require minimum contribution
+
+        // Create unique PoC secret key based on sender address and time
+        slice sender = get_sender(); // Get sender address
+        int timestamp = now(); // Get current timestamp
+        cell poc_key = serialize(sender, timestamp); // Generate unique PoC key
+        
+        // Store contribution and PoC key in contract
+        contributions[poc_key] = amount;
+        send_message("Contribution received. PoC Key: ", poc_key);
+    }
+
+    // Function to validate nodes based on PoC key
+    public function validate_node(slice poc_key) external returns (int) {
+        require(contributions.exists(poc_key), 101); // Ensure PoC key exists
+
+        // Execute validation logic here
+        int validation_strength = random() % 100; // Generate a validation score
+        return validation_strength;
+    }
+}

@@ -1,0 +1,23 @@
+// Node Validation Smart Contract for Zuxton
+
+contract NodeValidator {
+    // Storage for node status and validation
+    map<int, cell> node_validations;
+
+    // Validate node with dynamic validation strength
+    public function perform_validation(int node_id) external {
+        // Fetch unique validation algorithm based on time and node_id
+        int time_factor = now() % 60; // Use the minute value as a varying factor
+        cell validation_signature = serialize(node_id, time_factor);
+
+        // Store validation signature
+        node_validations[node_id] = validation_signature;
+        send_message("Node validated: ", node_id);
+    }
+
+    // Function to check validation status of a node
+    public function check_validation(int node_id) external returns (cell) {
+        require(node_validations.exists(node_id), 102); // Check if node has been validated
+        return node_validations[node_id];
+    }
+}

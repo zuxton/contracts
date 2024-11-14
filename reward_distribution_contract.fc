@@ -1,0 +1,33 @@
+// Reward Distribution Smart Contract for Zuxton
+
+const REWARD_THRESHOLD = 100; // Minimum points required for reward distribution
+const ZTON_REWARD_AMOUNT = 0.5; // Example Reward amount in Zton per distribution after snapshoot and TGE Event
+
+contract RewardDistribution {
+    // Mapping of PoC keys to reward eligibility status
+    map<cell, bool> reward_eligible;
+
+    // Distribute rewards based on points threshold
+    public function distribute_rewards(cell poc_key, int points_balance) external {
+        // Check if the validator meets the points threshold
+        if (points_balance >= REWARD_THRESHOLD && reward_eligible[poc_key] == false) {
+            reward_eligible[poc_key] = true; // Mark as eligible for reward
+
+            // Issue reward to the validator
+            int reward = TON_REWARD_AMOUNT;
+            send_ton(poc_key, reward); // Send TON reward
+
+            send_message("Reward distributed. Validator received ", reward, " TON.");
+        } else {
+            send_message("Reward not eligible or already received.");
+        }
+    }
+
+    // Function to reset eligibility for validators after distribution
+    public function reset_reward_eligibility(cell poc_key) external {
+        if (reward_eligible[poc_key] == true) {
+            reward_eligible[poc_key] = false; // Reset eligibility
+            send_message("Reward eligibility reset for next cycle.");
+        }
+    }
+}
